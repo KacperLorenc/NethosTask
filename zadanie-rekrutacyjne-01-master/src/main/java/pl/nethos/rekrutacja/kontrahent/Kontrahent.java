@@ -1,6 +1,9 @@
 package pl.nethos.rekrutacja.kontrahent;
 
+import pl.nethos.rekrutacja.bank_account.Account;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Kontrahent {
@@ -13,6 +16,14 @@ public class Kontrahent {
     private String nazwa;
 
     private String nip;
+
+    @OneToMany
+    @JoinColumn(name = "id_kontrahent")
+    private Set<Account> accounts;
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
 
     public long getId() {
         return id;
