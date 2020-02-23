@@ -5,10 +5,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.nethos.rekrutacja.bank_account.Account;
-import pl.nethos.rekrutacja.bank_account.AccountRepository;
-import pl.nethos.rekrutacja.kontrahent.Kontrahent;
-import pl.nethos.rekrutacja.kontrahent.KontrahentRepository;
+import pl.nethos.rekrutacja.models.Account;
+import pl.nethos.rekrutacja.repositories.AccountRepository;
+import pl.nethos.rekrutacja.models.Kontrahent;
+import pl.nethos.rekrutacja.repositories.KontrahentRepository;
 
 @Route
 @PWA(name = "Nethos - Zadanie rekrutacyjne na stanowisko programisty", shortName = "Nethos - Rekrutacja")
@@ -24,8 +24,8 @@ public class MainView extends VerticalLayout {
     private void wyswietl(KontrahentRepository kontrahentRepository, AccountRepository accountRepository) {
         for (Kontrahent kontrahent : kontrahentRepository.all()) {
             add(new Label(kontrahent.toString()));
-            if(kontrahent.getAccounts().isEmpty()){
-                System.out.println("Empty");
+            if(kontrahent.getAccounts() == null){
+              add( new Label("Empty"));
             }
         }
         for (Account account : accountRepository.all()) {

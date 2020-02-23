@@ -1,6 +1,4 @@
-package pl.nethos.rekrutacja.kontrahent;
-
-import pl.nethos.rekrutacja.bank_account.Account;
+package pl.nethos.rekrutacja.models;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -17,7 +15,7 @@ public class Kontrahent {
 
     private String nip;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_kontrahent")
     private Set<Account> accounts;
 
@@ -47,6 +45,7 @@ public class Kontrahent {
                 "id=" + id +
                 ", nazwa='" + nazwa + '\'' +
                 ", nip='" + nip + '\'' +
+
                 '}';
     }
 }

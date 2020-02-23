@@ -1,4 +1,4 @@
-package pl.nethos.rekrutacja.bank_account;
+package pl.nethos.rekrutacja.models;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -18,7 +18,6 @@ public class Account {
     private int wirtualne;
     private String stan_weryfikacji;
     private Timestamp data_weryfikacji;
-
 
 
     public long getId() {
@@ -56,4 +55,5 @@ public class Account {
 
         return builder.toString();
     }
+
 }
