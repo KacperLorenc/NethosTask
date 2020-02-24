@@ -1,6 +1,7 @@
 package pl.nethos.rekrutacja.models;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -31,12 +32,13 @@ public class Kontrahent {
         return nazwa;
     }
 
-    public void setNazwa(String nazwa) {
-        this.nazwa = nazwa;
-    }
 
     public void setNip(String nip) {
         this.nip = nip;
+    }
+
+    public String getNip() {
+        return nip;
     }
 
     @Override
@@ -47,5 +49,20 @@ public class Kontrahent {
                 ", nip='" + nip + '\'' +
 
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Kontrahent that = (Kontrahent) o;
+        return id == that.id &&
+                nazwa.equals(that.nazwa) &&
+                nip.equals(that.nip);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nazwa, nip);
     }
 }

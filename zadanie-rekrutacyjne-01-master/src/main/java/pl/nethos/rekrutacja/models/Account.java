@@ -2,6 +2,7 @@ package pl.nethos.rekrutacja.models;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Entity
 public class Account {
@@ -56,4 +57,19 @@ public class Account {
         return builder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return id == account.id &&
+                id_kontrahent == account.id_kontrahent &&
+                aktywne == account.aktywne &&
+                numer.equals(account.numer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, id_kontrahent, numer, aktywne);
+    }
 }
