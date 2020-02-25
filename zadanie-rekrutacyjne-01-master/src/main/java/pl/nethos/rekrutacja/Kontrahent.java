@@ -1,4 +1,4 @@
-package pl.nethos.rekrutacja.models;
+package pl.nethos.rekrutacja;
 
 import javax.persistence.*;
 import java.util.Objects;

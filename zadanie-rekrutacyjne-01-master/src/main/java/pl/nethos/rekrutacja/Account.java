@@ -1,4 +1,4 @@
-package pl.nethos.rekrutacja.models;
+package pl.nethos.rekrutacja;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -20,6 +20,29 @@ public class Account {
     private String stan_weryfikacji;
     private Timestamp data_weryfikacji;
 
+    public String getNumer() {
+        return numer;
+    }
+
+    public int getAktywne() {
+        return aktywne;
+    }
+
+    public int getDomyslne() {
+        return domyslne;
+    }
+
+    public int getWirtualne() {
+        return wirtualne;
+    }
+
+    public String getStan_weryfikacji() {
+        return stan_weryfikacji;
+    }
+
+    public Timestamp getData_weryfikacji() {
+        return data_weryfikacji;
+    }
 
     public long getId() {
         return id;
