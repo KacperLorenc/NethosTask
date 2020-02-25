@@ -52,8 +52,12 @@ public class Account {
         return id_kontrahent;
     }
 
-    public void setId_kontrahent(long id_kontrahent) {
-        this.id_kontrahent = id_kontrahent;
+    public void setStan_weryfikacji(String stan_weryfikacji) {
+        this.stan_weryfikacji = stan_weryfikacji;
+    }
+
+    public void setData_weryfikacji(Timestamp data_weryfikacji) {
+        this.data_weryfikacji = data_weryfikacji;
     }
 
     @Override

@@ -5,12 +5,17 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.nethos.rekrutacja.models.Result;
 import pl.nethos.rekrutacja.repositories.AccountRepository;
 import pl.nethos.rekrutacja.repositories.KontrahentRepository;
+import pl.nethos.rekrutacja.services.ResponseService;
+
+import java.util.Optional;
 
 
 @Route
@@ -19,13 +24,16 @@ import pl.nethos.rekrutacja.repositories.KontrahentRepository;
 public class MainView extends VerticalLayout {
     KontrahentRepository kontrahentRepository;
     AccountRepository accountRepository;
+    ResponseService responseService;
 
 
     public MainView(@Autowired KontrahentRepository kontrahentRepository,
-                    @Autowired AccountRepository accountRepository) {
+                    @Autowired AccountRepository accountRepository,
+                    @Autowired ResponseService responseService) {
 
         this.kontrahentRepository = kontrahentRepository;
         this.accountRepository = accountRepository;
+        this.responseService = responseService;
 
         addClassName("main-view");
         setSizeFull();
@@ -42,7 +50,8 @@ public class MainView extends VerticalLayout {
         header.getElement().getThemeList().add("dark");
         add(header);
     }
-    private void addFooter(){
+
+    private void addFooter() {
         Footer footer = new Footer();
         footer.getElement().getThemeList().add("dark");
         add(footer);
@@ -56,10 +65,9 @@ public class MainView extends VerticalLayout {
         gridOfKontrahents.removeColumnByKey("accounts");
         gridOfKontrahents.setHeightByRows(true);
         gridOfKontrahents.setClassName("kontrahent-grid");
-        gridOfKontrahents.addItemClickListener(event -> {
-                addAccountsGrid(event.getItem());
-            System.out.println(kontrahentRepository.getById(event.getItem().getId()));
-        });
+        gridOfKontrahents.addItemClickListener(event ->
+            addAccountsGrid(event.getItem())
+        );
         add(gridOfKontrahents);
     }
 
@@ -71,8 +79,14 @@ public class MainView extends VerticalLayout {
         dialog.add(gridOfAccounts);
         dialog.setHeight("300px");
         dialog.setWidth("900px");
-        gridOfAccounts.addItemClickListener(event ->{
-            System.out.println(accountRepository.getById(event.getItem().getId()));
+        gridOfAccounts.addItemClickListener(event -> {
+
+            Account account = event.getItem();
+            String nip = kontrahentRepository.getById(account.getId_kontrahent()).getNip();
+            String accountNumber = account.getNumer();
+            Result result = responseService.getResult(nip, accountNumber);
+            new Notification(result.toString(), 3000).open();
+            System.out.println(accountRepository.updateEntity(account.getId(), result.getAccountAssigned(), result.getRequestDateTime()));
         });
         dialog.open();
     }

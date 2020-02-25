@@ -67,4 +67,12 @@ public class Result {
         this.additionalProperties.put(name, value);
     }
 
+    @Override
+    public String toString() {
+        return "Result{" +
+                "accountAssigned='" + accountAssigned + '\'' +
+                ", requestDateTime='" + requestDateTime + '\'' +
+                ", requestId='" + requestId + '\'' +
+                '}';
+    }
 }
