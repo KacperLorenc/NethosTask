@@ -83,6 +83,12 @@ public class Account {
 
         return builder.toString();
     }
+    public String stan(){
+        if ("0".equals(stan_weryfikacji)) {
+            return "nieokreślony";
+        }
+        return "zweryfikowany";
+    }
 
     @Override
     public boolean equals(Object o) {

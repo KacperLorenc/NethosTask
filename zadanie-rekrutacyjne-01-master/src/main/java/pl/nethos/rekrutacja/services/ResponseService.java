@@ -13,7 +13,7 @@ public class ResponseService {
                 "https://wl-test.mf.gov.pl/api/check/nip/"+nip+"/bank-account/"+bankAccount ,
                 EntityCheckResponse.class
         );
-        System.out.println(entity.getResult());
+        assert entity != null;
         return entity.getResult();
     }
 }

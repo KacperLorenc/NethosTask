@@ -13,9 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.nethos.rekrutacja.models.Result;
 import pl.nethos.rekrutacja.repositories.AccountRepository;
 import pl.nethos.rekrutacja.repositories.KontrahentRepository;
+import pl.nethos.rekrutacja.services.AccountNotificationHandler;
 import pl.nethos.rekrutacja.services.ResponseService;
-
-import java.util.Optional;
 
 
 @Route
@@ -38,9 +37,7 @@ public class MainView extends VerticalLayout {
         addClassName("main-view");
         setSizeFull();
         addHeader();
-
-
-        kontrahentsGrid();
+        addKontrahentsGrid();
         addFooter();
     }
 
@@ -57,7 +54,7 @@ public class MainView extends VerticalLayout {
         add(footer);
     }
 
-    private void kontrahentsGrid() {
+    private void addKontrahentsGrid() {
 
         Grid<Kontrahent> gridOfKontrahents = new Grid<>(Kontrahent.class);
         gridOfKontrahents.setItems(kontrahentRepository.all());
@@ -66,28 +63,108 @@ public class MainView extends VerticalLayout {
         gridOfKontrahents.setHeightByRows(true);
         gridOfKontrahents.setClassName("kontrahent-grid");
         gridOfKontrahents.addItemClickListener(event ->
-            addAccountsGrid(event.getItem())
+                addAccountsGrid(event.getItem())
         );
         add(gridOfKontrahents);
     }
 
     private void addAccountsGrid(Kontrahent kontrahent) {
-        Dialog dialog = new Dialog();
+
         Grid<Account> gridOfAccounts = new Grid<>(Account.class);
-        gridOfAccounts.setItems(kontrahent.getAccounts());
-        gridOfAccounts.setHeightByRows(true);
+        initAccountsGrid(gridOfAccounts, kontrahent);
+
+        Dialog dialog = addDialog(gridOfAccounts, kontrahent);
+
+        dialog.open();
+    }
+
+    private Dialog addDialog(Grid<Account> gridOfAccounts, Kontrahent kontrahent) {
+
+        Dialog dialog = new Dialog();
         dialog.add(gridOfAccounts);
-        dialog.setHeight("300px");
+
+        int length = kontrahent.getAccounts().size() * 50;
+        dialog.setHeight(length < 100 ? "100px" : Integer.toString(length) + "px");
         dialog.setWidth("900px");
+
+        return dialog;
+    }
+
+    private void initAccountsGrid(Grid<Account> gridOfAccounts, Kontrahent kontrahent) {
+        gridOfAccounts.setItems(kontrahent.getAccounts());
+        gridOfAccounts.removeColumnByKey("stan_weryfikacji");
+        gridOfAccounts.removeColumnByKey("data_weryfikacji");
+        gridOfAccounts.removeColumnByKey("id");
+        gridOfAccounts.removeColumnByKey("id_kontrahent");
+        gridOfAccounts.removeColumnByKey("wirtualne");
+        gridOfAccounts.removeColumnByKey("aktywne");
+        gridOfAccounts.removeColumnByKey("domyslne");
+        gridOfAccounts.removeColumnByKey("numer");
+
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getAktywne() == 1)
+                        return "Tak";
+                    else
+                        return "Nie";
+                })
+                .setHeader("Aktywne");
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getDomyslne() == 1)
+                        return "Tak";
+                    else
+                        return "Nie";
+                })
+                .setHeader("Domyślne");
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getWirtualne() == 1)
+                        return "Tak";
+                    else
+                        return "Nie";
+                })
+                .setHeader("Wirtualne");
+
+        gridOfAccounts.setSizeFull();
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getNumer() != null)
+                        return "xx xxxx xxxx xxxx xxxx xxxx xxxx";
+
+                    else
+                        return "brak numeru";
+                })
+                .setHeader("Numer")
+                .setKey("numer");
+
+        gridOfAccounts.getColumnByKey("numer").setWidth("200px");
+
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getStan_weryfikacji() == null)
+                        return "nieokreślony";
+                    else if (account.getStan_weryfikacji().equals("0"))
+                        return "błędne konto";
+                    else
+                        return "zweryfikowany";
+                })
+                .setHeader("Stan weryfikacji");
+
+        gridOfAccounts.setSizeFull();
+
         gridOfAccounts.addItemClickListener(event -> {
 
-            Account account = event.getItem();
-            String nip = kontrahentRepository.getById(account.getId_kontrahent()).getNip();
-            String accountNumber = account.getNumer();
+            AccountNotificationHandler handler = new AccountNotificationHandler(event.getItem());
+            String nip = handler.getNip(kontrahentRepository);
+            String accountNumber = handler.getNumer();
             Result result = responseService.getResult(nip, accountNumber);
-            new Notification(result.toString(), 3000).open();
-            System.out.println(accountRepository.updateEntity(account.getId(), result.getAccountAssigned(), result.getRequestDateTime()));
+
+            new Notification("Ostatnio weryfikowano: " + handler.getNotificationText(accountRepository), 3000).open();
+            accountRepository.updateEntity(event.getItem().getId(), result.getAccountAssigned(), result.getRequestDateTime());
+            kontrahent.updateAccounts(event.getItem().getId(), accountRepository.getById(event.getItem().getId()));
+            gridOfAccounts.setItems(kontrahent.getAccounts());
+
         });
-        dialog.open();
     }
 }

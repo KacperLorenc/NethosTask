@@ -3,13 +3,14 @@ package pl.nethos.rekrutacja;
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class Kontrahent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "kontrahent_gen")
-    @SequenceGenerator(name="kontrahent_gen", sequenceName = "kontrahent_seq", allocationSize = 1)
+    @SequenceGenerator(name = "kontrahent_gen", sequenceName = "kontrahent_seq", allocationSize = 1)
     private long id;
 
     private String nazwa;
@@ -39,6 +40,20 @@ public class Kontrahent {
 
     public String getNip() {
         return nip;
+    }
+
+    public void updateAccounts(long accountId, Account account) {
+        if (account != null) {
+            accounts = accounts
+                    .stream()
+                    .map(x -> {
+                        if (x.getId() == accountId) {
+                            x = account;
+                        }
+                        return x;
+                    })
+                    .collect(Collectors.toSet());
+        }
     }
 
     @Override
