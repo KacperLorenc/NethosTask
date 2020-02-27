@@ -2,7 +2,7 @@ package pl.nethos.rekrutacja.repositories;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.nethos.rekrutacja.Kontrahent;
+import pl.nethos.rekrutacja.entities.Kontrahent;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

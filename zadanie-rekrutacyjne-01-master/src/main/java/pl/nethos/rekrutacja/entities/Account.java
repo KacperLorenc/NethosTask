@@ -1,4 +1,4 @@
-package pl.nethos.rekrutacja;
+package pl.nethos.rekrutacja.entities;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -6,12 +6,12 @@ import java.util.Objects;
 
 @Entity
 public class Account {
+
+    //variables
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_gen")
-    @SequenceGenerator(name="account_gen", sequenceName = "account_seq", allocationSize = 1)
+    @SequenceGenerator(name = "account_gen", sequenceName = "account_seq", allocationSize = 1)
     private long id;
-
-
     private long id_kontrahent;
     private String numer;
     private int aktywne;
@@ -19,6 +19,8 @@ public class Account {
     private int wirtualne;
     private String stan_weryfikacji;
     private Timestamp data_weryfikacji;
+
+    //getters
 
     public String getNumer() {
         return numer;
@@ -52,6 +54,8 @@ public class Account {
         return id_kontrahent;
     }
 
+    //setters
+
     public void setStan_weryfikacji(String stan_weryfikacji) {
         this.stan_weryfikacji = stan_weryfikacji;
     }
@@ -60,35 +64,7 @@ public class Account {
         this.data_weryfikacji = data_weryfikacji;
     }
 
-    @Override
-    public String toString() {
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("Account{" +
-                "id=" + id +
-                ", id_kontrahent=" + id_kontrahent +
-                ", numer='" + numer + '\'' +
-                ", aktywne=" + aktywne +
-                ", domyslne=" + domyslne +
-                ", wirtualne=" + wirtualne);
-        if (stan_weryfikacji!= null)
-            builder.append(", stan weryfikacji=" + stan_weryfikacji);
-        else
-            builder.append(", stan weryfikacji=brak danych ");
-        if (data_weryfikacji != null)
-            builder.append(", data weryfikacji=" + data_weryfikacji + "}");
-        else
-            builder.append(", data weryfikacji=brak danych}");
-
-        return builder.toString();
-    }
-    public String stan(){
-        if ("0".equals(stan_weryfikacji)) {
-            return "nieokreślony";
-        }
-        return "zweryfikowany";
-    }
+    //methods
 
     @Override
     public boolean equals(Object o) {

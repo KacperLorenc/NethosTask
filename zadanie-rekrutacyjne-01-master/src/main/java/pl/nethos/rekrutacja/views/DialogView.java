@@ -5,21 +5,27 @@ import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import pl.nethos.rekrutacja.Account;
-import pl.nethos.rekrutacja.Kontrahent;
+import pl.nethos.rekrutacja.entities.Account;
+import pl.nethos.rekrutacja.entities.Kontrahent;
 import pl.nethos.rekrutacja.models.Result;
 import pl.nethos.rekrutacja.repositories.AccountRepository;
 import pl.nethos.rekrutacja.repositories.KontrahentRepository;
 import pl.nethos.rekrutacja.services.AccountNotificationHandler;
 import pl.nethos.rekrutacja.services.ResponseService;
 
+
+//layout inside the dialog
 public class DialogView extends VerticalLayout {
+
+    //variables
 
     private final KontrahentRepository kontrahentRepository;
     private final AccountRepository accountRepository;
     private final ResponseService responseService;
     private final Kontrahent kontrahent;
-    Grid<Account> gridOfAccounts;
+    private final Grid<Account> gridOfAccounts;
+
+    //constructor
 
     public DialogView(KontrahentRepository kontrahentRepository, AccountRepository accountRepository, ResponseService responseService, Grid<Account> gridOfAccounts, Kontrahent kontrahent) {
         this.kontrahentRepository = kontrahentRepository;
@@ -31,14 +37,17 @@ public class DialogView extends VerticalLayout {
         setViewSize();
         addLabel();
         initAccountsGrid(gridOfAccounts, kontrahent);
-
     }
 
+    //methods
+
+    //sets size of grid, its items, adds columns and formats them, sets on click listener
     private void initAccountsGrid(Grid<Account> gridOfAccounts, Kontrahent kontrahent) {
 
         gridOfAccounts.setItems(kontrahent.getAccounts());
         gridOfAccounts.removeAllColumns();
 
+        //column aktywne
         gridOfAccounts
                 .addColumn(account -> {
                     if (account.getAktywne() == 1)
@@ -48,6 +57,8 @@ public class DialogView extends VerticalLayout {
                 })
                 .setHeader("Aktywne")
                 .setWidth("60px");
+
+        //column domyslne
         gridOfAccounts
                 .addColumn(account -> {
                     if (account.getDomyslne() == 1)
@@ -57,6 +68,8 @@ public class DialogView extends VerticalLayout {
                 })
                 .setHeader("Domyślne")
                 .setWidth("60px");
+
+        //column wirtualne
         gridOfAccounts
                 .addColumn(account -> {
                     if (account.getWirtualne() == 1)
@@ -67,7 +80,7 @@ public class DialogView extends VerticalLayout {
                 .setHeader("Wirtualne")
                 .setWidth("60px");
 
-
+        //column numer
         gridOfAccounts
                 .addColumn(account -> {
                     if (account.getNumer() != null)
@@ -79,6 +92,7 @@ public class DialogView extends VerticalLayout {
                 .setHeader("Numer")
                 .setWidth("200px");
 
+        //column stan weryfikacji
         gridOfAccounts
                 .addColumn(account -> {
                     if (account.getStan_weryfikacji() == null) {
@@ -91,20 +105,25 @@ public class DialogView extends VerticalLayout {
                 })
                 .setHeader("Stan weryfikacji");
 
+        //size of grid
         gridOfAccounts.setHeightByRows(true);
 
-        gridOfAccounts.addItemClickListener(this::verify);
+        //calls verifyAndUpdate on every click
+        gridOfAccounts.addItemClickListener(this::verifyAndUpdate);
 
+        //grid added to view
         add(gridOfAccounts);
 
     }
 
+    //adds label to a dialog
     private void addLabel() {
-        Label text = new Label("Kliknij rekord konta aby je zweryfikować.");
+        Label text = new Label("Kliknij na wybrane konto aby je zweryfikować.");
         text.setClassName("kliknijLabel");
         add(text);
     }
 
+    //sets size of view
     private void setViewSize() {
         int length = kontrahent.getAccounts().size() * 45 + 100;
         setHeight(length < 175 ? "175px" : Integer.toString(length) + "px");
@@ -112,7 +131,9 @@ public class DialogView extends VerticalLayout {
         setWidth("900px");
     }
 
-    private void verify(ItemClickEvent<Account> event) {
+    //gets result from resource service, creates notification,
+    //updates database, set of accounts in chosen kontrahent and the grid itself
+    private void verifyAndUpdate(ItemClickEvent<Account> event) {
         AccountNotificationHandler handler = new AccountNotificationHandler(event.getItem());
 
         String nip = handler.getNip(kontrahentRepository);
@@ -122,8 +143,12 @@ public class DialogView extends VerticalLayout {
 
         new Notification("Ostatnio weryfikowano: " + handler.getNotificationText(accountRepository), 3000).open();
 
-        accountRepository.updateEntity(id, result.getAccountAssigned(), result.getRequestDateTime());
-        kontrahent.updateAccounts(id, accountRepository.getById(id));
-        gridOfAccounts.setItems(kontrahent.getAccounts());
+        if(result!=null) {
+            accountRepository.updateEntity(id, result.getAccountAssigned(), result.getRequestDateTime());
+            kontrahent.updateAccounts(id, accountRepository.getById(id));
+            gridOfAccounts.setItems(kontrahent.getAccounts());
+        }
+        else
+            new Notification("Nie można połączyć z https://wl-api.mf.gov.pl/api").open();
     }
 }
