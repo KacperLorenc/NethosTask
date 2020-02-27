@@ -10,7 +10,7 @@ public class ResponseService {
 
     public Result getResult (String nip,String bankAccount){
         EntityCheckResponse entity =new RestTemplate().getForObject(
-                "https://wl-test.mf.gov.pl/api/check/nip/"+nip+"/bank-account/"+bankAccount ,
+                "https://wl-api.mf.gov.pl/api/check/nip/"+nip+"/bank-account/"+bankAccount ,
                 EntityCheckResponse.class
         );
         assert entity != null;

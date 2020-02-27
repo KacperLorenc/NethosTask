@@ -27,7 +27,7 @@ public class AccountNotificationHandler {
     public String getNotificationText(AccountRepository repository){
       Timestamp ts = getDataWeryfikacji(repository).orElse(Timestamp.valueOf(LocalDateTime.now()));
       LocalDateTime time = ts.toLocalDateTime();
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-mm-yyyy HH:mm:ss");
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-mm-yyyy hh:mm:ss");
       return time.format(formatter);
     }
 }
