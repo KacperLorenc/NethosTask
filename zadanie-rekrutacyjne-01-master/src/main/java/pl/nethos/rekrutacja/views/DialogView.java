@@ -47,6 +47,18 @@ public class DialogView extends VerticalLayout {
         gridOfAccounts.setItems(kontrahent.getAccounts());
         gridOfAccounts.removeAllColumns();
 
+        //column numer
+        gridOfAccounts
+                .addColumn(account -> {
+                    if (account.getNumer() != null)
+                        return "xx xxxx xxxx xxxx xxxx xxxx xxxx";
+
+                    else
+                        return "brak numeru";
+                })
+                .setHeader("Numer")
+                .setWidth("200px");
+
         //column aktywne
         gridOfAccounts
                 .addColumn(account -> {
@@ -80,17 +92,7 @@ public class DialogView extends VerticalLayout {
                 .setHeader("Wirtualne")
                 .setWidth("60px");
 
-        //column numer
-        gridOfAccounts
-                .addColumn(account -> {
-                    if (account.getNumer() != null)
-                        return "xx xxxx xxxx xxxx xxxx xxxx xxxx";
 
-                    else
-                        return "brak numeru";
-                })
-                .setHeader("Numer")
-                .setWidth("200px");
 
         //column stan weryfikacji
         gridOfAccounts
@@ -109,7 +111,7 @@ public class DialogView extends VerticalLayout {
         gridOfAccounts.setHeightByRows(true);
 
         //calls verifyAndUpdate on every click
-        gridOfAccounts.addItemClickListener(this::verifyAndUpdate);
+        gridOfAccounts.addItemClickListener(this::showNotificationAndUpdate);
 
         //grid added to view
         add(gridOfAccounts);
@@ -133,22 +135,37 @@ public class DialogView extends VerticalLayout {
 
     //gets result from resource service, creates notification,
     //updates database, set of accounts in chosen kontrahent and the grid itself
-    private void verifyAndUpdate(ItemClickEvent<Account> event) {
+    private void showNotificationAndUpdate(ItemClickEvent<Account> event) {
+
+        //creates handler that helps creating notification, takes account in constructor
         AccountNotificationHandler handler = new AccountNotificationHandler(event.getItem());
 
-        String nip = handler.getNip(kontrahentRepository);
-        String accountNumber = handler.getNumer();
-        long id = event.getItem().getId();
-        Result result = responseService.getResult(nip, accountNumber);
-
+        //handler produces string by taking date of previous check from database
         new Notification("Ostatnio weryfikowano: " + handler.getNotificationText(accountRepository), 3000).open();
 
-        if(result!=null) {
+
+        String nip = handler.getNip(kontrahentRepository);  //gets nip of chosen kontrahent from repository
+        String accountNumber = handler.getNumer();          //gets account number from kontrahent
+        long id = handler.getId();                          //gets accounts id
+
+        //response service creates a response from external api by passing nip and account number
+        Result result = responseService.getResult(nip, accountNumber);
+
+        //if response from external api isn't null, program updates database and grid,
+        //else program shows error notification
+        if (!update(id, result))
+            new Notification("Nie można połączyć z https://wl-api.mf.gov.pl/api",3000).open();
+    }
+
+    private boolean update(long id, Result result){
+        if (result==null) {
+            return false;
+        } else {
             accountRepository.updateEntity(id, result.getAccountAssigned(), result.getRequestDateTime());
             kontrahent.updateAccounts(id, accountRepository.getById(id));
             gridOfAccounts.setItems(kontrahent.getAccounts());
+            return true;
         }
-        else
-            new Notification("Nie można połączyć z https://wl-api.mf.gov.pl/api").open();
     }
+
 }

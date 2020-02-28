@@ -68,6 +68,7 @@ public class MainView extends VerticalLayout {
         add(gridOfKontrahents);
     }
 
+    //creates a dialog with accounts grid inside
     private void addAccountsGrid(Kontrahent kontrahent) {
 
         Grid<Account> gridOfAccounts = new Grid<>(Account.class);

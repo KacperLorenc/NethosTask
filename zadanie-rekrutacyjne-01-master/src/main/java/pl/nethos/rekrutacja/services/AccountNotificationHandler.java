@@ -23,6 +23,9 @@ public class AccountNotificationHandler {
     public String getNumer(){
         return this.account.getNumer();
     }
+    public long getId(){
+        return this.account.getId();
+    }
 
     //utility function, helps with checking if account has been previously verified
     //by connecting with database

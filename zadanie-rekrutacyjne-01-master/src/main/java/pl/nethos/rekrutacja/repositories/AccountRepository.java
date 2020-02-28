@@ -28,7 +28,7 @@ public class AccountRepository {
         Account account = getById(id);
         account.setStan_weryfikacji(status.equals("NIE") ? "0" : "1");
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy HH:mm:ss");
             Date parsedDate = dateFormat.parse(time);
             Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
             account.setData_weryfikacji(timestamp);
